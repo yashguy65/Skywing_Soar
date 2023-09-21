@@ -3,6 +3,7 @@ import pygame.freetype
 import os, sys, psutil, logging #os, sys and logging are inbuilt
 from constants import *
 from math import sqrt
+import csv
 
 pygame.init()
 pygame.font.init()
@@ -12,19 +13,36 @@ def print_text(text, fontsize, textcolor, bgcolor, isbold):
     surface, _ = font.render(text=text, fgcolor=textcolor, bgcolor=bgcolor)
     return surface.convert_alpha()
 
+def highscore(SCORE):
+    file1 = open('highscores.csv', 'r+', newline = '')       
+    r = csv.reader(file1, delimiter=',')
+    row1 = next(r)
+    if int(SCORE)>int(row1[0]):
+        w = csv.writer(file1, delimiter=',')
+        file1.seek(0)
+        w.writerow([int(SCORE)])
+        return int(SCORE)
+    else:
+        return int(row1[0])
+    file1.close()
+
 def restart_program():
     try:
         psy = psutil.Process(os.getpid())  #gives id of memory process
         for handler in psy.open_files() + psy.connections():    #sees files open using memory id
             os.close(handler.fd)     #closes the files given by loop
     except Exception as exc:  #wildcard* exception
-        logging.error(exc)    #should give a summary of what made program crash ig
+        logging.error(exc)    #should give a summary of what made program crash 
     python = sys.executable   #path for executable binary python (bytecode for specific processor)
     os.execl(python, python, *sys.argv)  #execl causes running process 'python' to be replaced by program passed as arguments
 
 def play_game(screen):
     global SCORE
-    text1 = 'SCORE: '+SCORE+' CLICK TO TRY AGAIN'
+    max = highscore(SCORE)
+    #try:
+    text1 = 'SCORE: ' + SCORE+', HIGHEST: '+str(max)+ ' Click to try again.'
+    #except:
+        #text1 = 'SCORE:'+SCORE+ 'Click to try again'
     #text1 = 'CLICK ANYWHERE TO PLAY AGAIN'
     playagainbox = print_text(text1, 17, WHITE, None, False)
     againrect = playagainbox.get_rect(center = (screen.get_width()/2, screen.get_height()/2))
@@ -93,3 +111,15 @@ def showThrust(screen, thrust, max_thrust):
     desc_rect = desc.get_rect(center = (wt*4/40+ box_w/2, ht*34/40 + box_h + 9))
     screen.blit(desc, desc_rect)
     
+def showHeight(screen, height, max_height):
+    wt, ht = screen.get_width(), screen.get_height()
+    height_percent = 100 - (height/max_height * 100)
+    box_w, box_h = 10, 50
+    height_height = (height_percent) * box_h /100
+    pygame.draw.rect(screen, WHITE, (wt*36/40, ht*32/40, box_w, box_h))
+    pygame.draw.rect(screen, GREEN, (wt*36/40, ht*32/40 - height_height+ box_h, box_w, height_height))
+    pygame.draw.rect(screen, WHITE, ((wt*36/40) -10 + box_w/2, ht*32/40 - height_height + box_h-4, 20, 8))
+    
+    desc = print_text('HEIGHT', 12, WHITE, None, True)
+    desc_rect = desc.get_rect(center = (wt*36/40+ box_w/2, ht*32/40 + box_h + 9))
+    screen.blit(desc, desc_rect)

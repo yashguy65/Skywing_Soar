@@ -12,7 +12,7 @@ resizablesurface = pygame.display.set_mode([VIEW_WIDTH, VIEW_HEIGHT], FLAGS)
 imageSprite = pygame.image.load("images/drawn_plane_white_89x20.png").convert_alpha()
 pygame.display.set_icon(imageSprite)
 screen = resizablesurface.copy()
-pygame.display.set_caption("Flight Simulator")
+pygame.display.set_caption("Skywing Soar")
 
 clock = pygame.time.Clock()
 
@@ -122,6 +122,7 @@ def mainloop():
     fps_rn = clock.get_fps()
     gamemenu.showfps(screen, fps_rn)
     gamemenu.showThrust(screen, player.thrust.magnitude, player.max_thrust_mag)
+    gamemenu.showHeight(screen, player.y, surf.get_height())
 
     if player.RESTART_NEEDED:
       GAMEMODE = 'Menu'
